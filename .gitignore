@@ -218,3 +218,14 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# =======================================================
+# SignBridge Heavy Data, Raw Archives, & Checkpoint Assets
+# =======================================================
+data/
+raw_dataset/
+*.zip
+*.parquet
+*.npy
+*.pth
+!models/signbridge_bilstm.pth

@@ -1,0 +1,22 @@
+{
+  "SLR": {
+    "Top1_Accuracy": 29.36,
+    "Top5_Accuracy": 64.12,
+    "Precision_Macro": 23.51,
+    "Recall_Macro": 26.57,
+    "F1_Macro": 22.46,
+    "F1_Weighted": 24.74,
+    "WER": 70.64
+  },
+  "SLT": {
+    "BLEU_1": 29.36,
+    "BLEU_2": 0.61,
+    "BLEU_3": 0.17,
+    "BLEU_4": 0.09,
+    "ROUGE_L_F1": 29.36,
+    "METEOR": 29.36,
+    "PER": 70.64,
+    "TER": 70.64
+  },
+  "Latency_ms": 1.27
+}

@@ -1,0 +1,14 @@
+\begin{table}
+\caption{SignBridge Multi-Model Benchmark on Held-Out Test Set}
+\label{tab:signbridge_benchmark}
+\begin{tabular}{lrrrrrrrrrr}
+\toprule
+Architecture & Top-1 Acc (%) & Top-5 Acc (%) & F1-Score (%) & WER (%) & BLEU-1 & BLEU-4 & ROUGE-L & METEOR & PER (%) & Latency (ms) \\
+\midrule
+Bi-LSTM (Baseline) & 29.360000 & 64.120000 & 22.460000 & 70.640000 & 29.360000 & 0.090000 & 29.360000 & 29.360000 & 70.640000 & 1.270000 \\
+CNN-BiGRU (Local-Global) & 36.390000 & 71.520000 & 29.760000 & 63.610000 & 36.390000 & 0.090000 & 36.390000 & 36.390000 & 63.610000 & 3.140000 \\
+Res-TCN (Dilated Temporal) & 31.370000 & 66.750000 & 24.520000 & 68.630000 & 31.370000 & 0.090000 & 31.370000 & 31.370000 & 68.630000 & 0.920000 \\
+Transformer (Self-Attention) & 0.630000 & 2.630000 & 0.000000 & 99.370000 & 0.630000 & 0.030000 & 0.630000 & 0.630000 & 99.370000 & 0.590000 \\
+\bottomrule
+\end{tabular}
+\end{table}

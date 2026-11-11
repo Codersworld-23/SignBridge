@@ -1,0 +1,26 @@
+              precision    recall  f1-score   support
+
+       Hello       0.21      1.00      0.35         3
+   Thank You       0.50      1.00      0.67         2
+ How Are You       0.78      0.88      0.82         8
+Good Morning       0.25      0.50      0.33         2
+  Good Night       0.00      0.00      0.00         5
+     Pleased       0.00      0.00      0.00         3
+     Alright       0.00      0.00      0.00         2
+           I       0.80      0.80      0.80         5
+         You       0.50      0.25      0.33         4
+          We       0.50      0.40      0.44         5
+        Good       0.50      1.00      0.67         3
+         Bad       0.33      0.25      0.29         4
+       Happy       1.00      1.00      1.00         7
+         Sad       0.00      0.00      0.00         2
+    Hospital       1.00      1.00      1.00         2
+       House       1.00      1.00      1.00         7
+      Doctor       1.00      1.00      1.00         2
+     Patient       0.00      0.00      0.00         4
+      Father       0.25      0.33      0.29         3
+   Cellphone       0.67      0.50      0.57         4
+
+    accuracy                           0.58        77
+   macro avg       0.46      0.55      0.48        77
+weighted avg       0.53      0.58      0.54        77
