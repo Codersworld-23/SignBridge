@@ -188,6 +188,7 @@ SignBridge/
 │   ├── raw/                           # Raw video clips & metadata archives
 │   └── processed/                     # 262 classes, 4,284 normalized (30, 258) .npy arrays
 ├── models/                            # Active deployment model checkpoints (.pth)
+├── papers/                            # research papers pdfs
 ├── results/                           # Academic Project Report Artifacts
 │   ├── 1_bilstm/                      # Model 1 Dedicated Output
 │   │   ├── checkpoint_best.pth        # Model weights
@@ -195,9 +196,9 @@ SignBridge/
 │   │   ├── confusion_matrix.png       # Test confusion matrix
 │   │   ├── classification_report.txt  # Full precision/recall/F1 table
 │   │   └── test_metrics.json          # SLR & SLT metric values
-│   ├── 2_cnngru/                      # Model 2 Dedicated Output
-│   ├── 3_tcn/                         # Model 3 Dedicated Output
-│   ├── 4_transformer/                 # Model 4 Dedicated Output
+│   ├── 2_cnngru/                      # Model 2 Dedicated Output (directory structure same as 1)
+│   ├── 3_tcn/                         # Model 3 Dedicated Output (directory structure same as 1)
+│   ├── 4_transformer/                 # Model 4 Dedicated Output (directory structure same as 1)
 │   ├── comparison/                    # Master Comparative Analysis
 │   │   ├── benchmark_comparison.md    # Markdown table
 │   │   ├── benchmark_comparison.csv   # Spreadsheet table
@@ -205,20 +206,26 @@ SignBridge/
 │   │   ├── comparison_learning_curves.png # Combined loss/accuracy curves
 │   │   └── comparison_metrics_bar.png # Multi-metric comparative bar chart
 │   └── split_manifest.json            # Permanent 70% Train / 15% Val / 15% Test record
+|   └── README.md                      # Benchmark Results Directory Guide
 ├── src/
 │   ├── config.py                      # Global configuration & dynamic class discovery
 │   ├── keypoints_extractor.py         # MediaPipe Holistic 3D feature extractor
 │   ├── fuzzy_engine.py                # Standalone Mamdani Fuzzy Inference System
-│   ├── model.py                       # 4 Neural Architectures (BiLSTM, CNN-BiGRU, TCN, Transformer)
+│   ├── model.py                       # 4 Neural Architectures (BiLSTM, CNN-BiGRU, TCN,Transformer)
 │   ├── dataset.py                     # Data augmentation & strict 3-way split loaders
 │   ├── metrics.py                     # SLR & SLT evaluation metric suite
 │   ├── benchmark.py                   # Automated 4-model ablation study pipeline
 │   ├── train.py                       # Single architecture training loop
 │   ├── inference.py                   # Real-time inference backend
+|   ├── collect_data.py                # 
+|   ├── convert_dataset.py             # 
 │   └── convert_all_dataset.py         # Multi-threaded Parquet-to-NumPy converter
 ├── train_single.py                    # Manual CLI trainer for individual models
 ├── webcam_live.py                     # Real-time webcam interface with Fuzzy HUD
+├── test_pipeline.py                   # 
 ├── requirements.txt                   # Dependency specifications
+├── LICENSE
+├── .gitignore                   
 └── README.md
 ```
 
