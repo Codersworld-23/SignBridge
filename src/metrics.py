@@ -152,21 +152,49 @@ def compute_rouge_l(references: List[List[str]], hypotheses: List[List[str]]) ->
 
 def compute_corpus_bleu(references: List[List[str]], hypotheses: List[List[str]]) -> Dict[str, float]:
     """
-    Computes BLEU-1, BLEU-2, BLEU-3, BLEU-4 using NLTK or fallback standard n-gram matching.
+    Computes BLEU-1, BLEU-2, BLEU-3, and BLEU-4 using clipped corpus
+    n-gram precision with smoothing for missing higher-order n-grams.
     """
-    try:
-        from nltk.translate.bleu_score import corpus_bleu, SmoothingFunction
-        smooth = SmoothingFunction().method1
-        # NLTK expects list of list of references: [[ref1_a, ref1_b], [ref2_a], ...]
-        ref_nested = [[ref] for ref in references]
+    def ngram_counts(tokens: List[str], order: int) -> Counter:
+        return Counter(
+            tuple(tokens[i:i + order])
+            for i in range(len(tokens) - order + 1)
+        )
 
-        b1 = corpus_bleu(ref_nested, hypotheses, weights=(1.0, 0, 0, 0), smoothing_function=smooth)
-        b2 = corpus_bleu(ref_nested, hypotheses, weights=(0.5, 0.5, 0, 0), smoothing_function=smooth)
-        b3 = corpus_bleu(ref_nested, hypotheses, weights=(0.333, 0.333, 0.333, 0), smoothing_function=smooth)
-        b4 = corpus_bleu(ref_nested, hypotheses, weights=(0.25, 0.25, 0.25, 0.25), smoothing_function=smooth)
-    except Exception:
-        # Fallback approximation
-        b1, b2, b3, b4 = 0.0, 0.0, 0.0, 0.0
+    precisions = []
+    for order in range(1, 5):
+        matched = 0
+        total = 0
+        for ref, hyp in zip(references, hypotheses):
+            ref_counts = ngram_counts(ref, order)
+            hyp_counts = ngram_counts(hyp, order)
+            matched += sum(
+                min(count, ref_counts[ngram])
+                for ngram, count in hyp_counts.items()
+            )
+            total += sum(hyp_counts.values())
+
+        # Method-1-style smoothing avoids zeroing BLEU for short sequences.
+        precisions.append(
+            matched / total if total else (1.0 / (2 ** order))
+        )
+
+    ref_length = sum(len(ref) for ref in references)
+    hyp_length = sum(len(hyp) for hyp in hypotheses)
+    if hyp_length == 0:
+        b1 = b2 = b3 = b4 = 0.0
+    else:
+        brevity_penalty = (
+            1.0 if hyp_length > ref_length
+            else math.exp(1.0 - ref_length / hyp_length)
+        )
+
+        def bleu(order: int) -> float:
+            return brevity_penalty * math.exp(
+                sum(math.log(p) for p in precisions[:order]) / order
+            )
+
+        b1, b2, b3, b4 = (bleu(order) for order in range(1, 5))
 
     return {
         "bleu_1": float(b1 * 100),
@@ -179,7 +207,10 @@ def compute_corpus_bleu(references: List[List[str]], hypotheses: List[List[str]]
 def compute_meteor(references: List[List[str]], hypotheses: List[List[str]]) -> float:
     """Computes METEOR score across the translation corpus."""
     try:
-        from nltk.translate.meteor_score import meteor_score
+        meteor_score = __import__(
+            "nltk.translate.meteor_score",
+            fromlist=["meteor_score"],
+        ).meteor_score
         scores = [
             meteor_score([ref], hyp) for ref, hyp in zip(references, hypotheses)
         ]

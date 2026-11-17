@@ -1,17 +1,18 @@
 # SignBridge: A Hybrid Neuro-Fuzzy Framework for Indian Sign Language Recognition and Translation
 
-[![Course](https://img.shields.io/badge/Coursework-Semester%207%20Fuzzy%20Logic%20%2F%20Soft%20Computing-blue)](#)
-[![Dataset](https://img.shields.io/badge/Dataset-AI4Bharat%20INCLUDE%20(262%20Classes)-green)](#)
-[![Framework](https://img.shields.io/badge/Framework-PyTorch%20%7C%20MediaPipe%20%7C%20Fuzzy%20Logic-orange)](#)
+[![Course](<https://img.shields.io/badge/Coursework-Semester%207%20Fuzzy%20Logic%20%2F%20Soft%20Computing-blue>)](#)
+[![Dataset](<https://img.shields.io/badge/Dataset-AI4Bharat%20INCLUDE%20(262%20Classes)-green>)](#)
+[![Framework](<https://img.shields.io/badge/Framework-PyTorch%20%7C%20MediaPipe%20%7C%20Fuzzy%20Logic-orange>)](#)
 [![License](https://img.shields.io/badge/License-MIT-lightgrey)](#)
 
 ---
 
 ## 📖 Abstract & Executive Summary
 
-**SignBridge** is an intelligent, real-time sign language recognition (SLR) and sign language translation (SLT) system developed for Indian Sign Language (ISL). Recognizing dynamic continuous signs from video streams is inherently challenged by rapid hand kinematics, interpersonal signing variances, and transitional non-sign artifacts between gestures. 
+**SignBridge** is an intelligent, real-time sign language recognition (SLR) and sign language translation (SLT) system developed for Indian Sign Language (ISL). Recognizing dynamic continuous signs from video streams is inherently challenged by rapid hand kinematics, interpersonal signing variances, and transitional non-sign artifacts between gestures.
 
 To overcome these challenges, SignBridge implements a **four-stage hybrid neuro-fuzzy pipeline**:
+
 1. **Spatial Representation:** 3D skeletal landmark extraction via Google MediaPipe Holistic (258 spatial features per frame).
 2. **Temporal Modeling:** A progressive four-model ablation suite encompassing **Bi-LSTM**, **CNN-BiGRU**, **Dilated Res-TCN**, and **Multi-Head Self-Attention Transformer**.
 3. **Soft Computing & Decision Stabilization:** A 3-input **Mamdani Fuzzy Inference System (FIS)** that evaluates neural softmax confidence, temporal prediction agreement, and kinematic hand velocity to eliminate false-positive flicker and transitional errors.
@@ -73,7 +74,9 @@ SignBridge is evaluated on the full **AI4Bharat INCLUDE** benchmark (*ACM Multim
 * **Lexical Coverage:** **262 distinct ISL sign classes** spanning 15 semantic domains (greetings, pronouns, family, jobs, adjectives, electronics, places, time, and society).
 * **Signer & Environmental Diversity:** Recorded with deaf and professional signers across diverse lighting, backgrounds, and clothing.
 * **Storage & Representation:** Converted from raw multi-gigabyte video into pre-extracted, high-density MediaPipe Holistic arrays. Every recording is resampled to a standardized tensor of shape:
-  $$\mathbf{X} \in \mathbb{R}^{30 \times 258}$$
+  $$
+  \mathbf{X} \in \mathbb{R}^{30 \times 258}
+  $$
 * **Local Location:** `data/processed/<class_name>/sample_xxxx.npy`
 
 ---
@@ -82,7 +85,9 @@ SignBridge is evaluated on the full **AI4Bharat INCLUDE** benchmark (*ACM Multim
 
 To eliminate data leakage and guarantee empirical reproducibility, SignBridge enforces an immutable **3-way stratified split**:
 
-$$\text{Total Samples } (N = 4,284) \implies \begin{cases} \mathbf{Train\ (70\%):} & \sim 3,000 \text{ samples for gradient updates} \\ \mathbf{Validation\ (15\%):} & \sim 642 \text{ samples for hyperparameter tuning \& early stopping} \\ \mathbf{Test\ (15\%):} & \sim 642 \text{ samples strictly held-out for final evaluation} \end{cases}$$
+$$
+\text{Total Samples } (N = 4,284) \implies \begin{cases} \mathbf{Train\ (70\%):} & \sim 3,000 \text{ samples for gradient updates} \\ \mathbf{Validation\ (15\%):} & \sim 642 \text{ samples for hyperparameter tuning \& early stopping} \\ \mathbf{Test\ (15\%):} & \sim 642 \text{ samples strictly held-out for final evaluation} \end{cases}
+$$
 
 The exact assignment of each sample is saved in [`results/split_manifest.json`](results/split_manifest.json) with a fixed seed ($S=42$). The test set is evaluated **only once** per architecture after all training has concluded.
 
@@ -93,23 +98,31 @@ The exact assignment of each sample is saved in [`results/split_manifest.json`](
 To provide an exhaustive comparative analysis for the coursework report, four progressive architectures are benchmarked:
 
 ### 1. Model 1: Bidirectional LSTM with Attention-Pooling (Bi-LSTM)
+
 * **Rationale:** Establishes the sequential recurrence baseline.
-* **Architecture:** 
-  $$\mathbf{x}_t \longrightarrow \text{Linear}(258 \to 128) \longrightarrow \text{BatchNorm1d} \longrightarrow \text{Bi-LSTM}(2 \text{ layers}, h=128) \longrightarrow \text{Attention Weights } \alpha_t \longrightarrow \mathbf{c} = \sum \alpha_t \mathbf{h}_t \longrightarrow \text{Linear}(256 \to 262)$$
+* **Architecture:**
+  $$
+  \mathbf{x}_t \longrightarrow \text{Linear}(258 \to 128) \longrightarrow \text{BatchNorm1d} \longrightarrow \text{Bi-LSTM}(2 \text{ layers}, h=128) \longrightarrow \text{Attention Weights } \alpha_t \longrightarrow \mathbf{c} = \sum \alpha_t \mathbf{h}_t \longrightarrow \text{Linear}(256 \to 262)
+  $$
 * **Strength:** Models forward and backward temporal dependencies with adaptive attention over key movement phases.
 
 ### 2. Model 2: Spatial-Temporal Hybrid (CNN-BiGRU)
+
 * **Rationale:** Decouples local intra-sign motion primitives from global sequence context.
-* **Architecture:** 
+* **Architecture:**
   Two 1D temporal convolution blocks ($\text{kernel}=3, 5$ with $\text{BatchNorm}$ and $\text{ReLU}$) extract short-term finger flicks and wrist trajectories, followed by a 2-layer Bidirectional GRU for global phrase dynamics.
 
 ### 3. Model 3: Dilated Residual Temporal Convolutional Network (Res-TCN)
+
 * **Rationale:** Non-recurrent temporal architecture with exponential receptive field expansion without vanishing gradients.
-* **Architecture:** 
+* **Architecture:**
   Stacked residual blocks with causal dilated 1D convolutions ($d \in \{1, 2, 4\}$), weight normalization, and $1 \times 1$ skip connections:
-  $$\mathbf{y} = \text{Activation}(\text{ConvBlock}_d(\mathbf{x}) + \mathbf{W}_{\text{res}}\mathbf{x})$$
+  $$
+  \mathbf{y} = \text{Activation}(\text{ConvBlock}_d(\mathbf{x}) + \mathbf{W}_{\text{res}}\mathbf{x})
+  $$
 
 ### 4. Model 4: Multi-Head Self-Attention Transformer Encoder
+
 * **Rationale:** Represents state-of-the-art sequence modeling through all-to-all pairwise attention.
 * **Architecture:**
   Linear token projection ($258 \to 128$) + Fixed Sinusoidal Positional Embeddings $\text{PE}_{(pos, 2i)}$ + 2 Transformer Encoder layers ($d_{\text{model}}=128$, $n_{\text{head}}=4$, $d_{\text{ff}}=256$, $\text{dropout}=0.2$) with LayerNorm and Pre-LN residual connections.
@@ -123,37 +136,50 @@ Standard argmax classification fails on live camera feeds because signers genera
 ### 1. Universes of Discourse & Membership Functions
 
 * **Input 1: Neural Softmax Confidence ($P_{\text{conf}} \in [0.0, 1.0]$)**
+
   * $\mu_{\text{Low}}(x) = \text{trapmf}(x; [0.0, 0.0, 0.35, 0.55])$
   * $\mu_{\text{Medium}}(x) = \text{trimf}(x; [0.40, 0.65, 0.85])$
   * $\mu_{\text{High}}(x) = \text{trapmf}(x; [0.70, 0.85, 1.0, 1.0])$
-
 * **Input 2: Temporal Stability Ratio ($S_{\text{stab}} \in [0.0, 1.0]$)**
-  $$\text{Fraction of past } N=15 \text{ frames agreeing on candidate class } C^*$$
+
+  $$
+  \text{Fraction of past } N=15 \text{ frames agreeing on candidate class } C^*
+  $$
+
   * $\mu_{\text{Flickering}}(x) = \text{trapmf}(x; [0.0, 0.0, 0.25, 0.45])$
   * $\mu_{\text{Moderate}}(x) = \text{trimf}(x; [0.35, 0.60, 0.80])$
   * $\mu_{\text{Stable}}(x) = \text{trapmf}(x; [0.65, 0.80, 1.0, 1.0])$
-
 * **Input 3: Hand Kinematic Velocity ($V_{\text{motion}} \in [0.0, 1.0]$)**
-  $$\text{Normalized Euclidean inter-frame landmark displacement: } \|\mathbf{k}_t - \mathbf{k}_{t-1}\|_2$$
+
+  $$
+  \text{Normalized Euclidean inter-frame landmark displacement: } \|\mathbf{k}_t - \mathbf{k}_{t-1}\|_2
+  $$
+
   * $\mu_{\text{Still}}(x) = \text{trapmf}(x; [0.0, 0.0, 0.15, 0.35])$
   * $\mu_{\text{Moving}}(x) = \text{trimf}(x; [0.20, 0.45, 0.70])$
   * $\mu_{\text{Rapid}}(x) = \text{trapmf}(x; [0.55, 0.75, 1.0, 1.0])$
-
 * **Output Variable: Decision Commitment Score ($D \in [0.0, 1.0]$)**
+
   * $\mu_{\text{Reject}}(z) = \text{trapmf}(z; [0.0, 0.0, 0.20, 0.40])$
   * $\mu_{\text{Hold}}(z) = \text{trimf}(z; [0.30, 0.50, 0.70])$
   * $\mu_{\text{Accept}}(z) = \text{trapmf}(z; [0.60, 0.75, 1.0, 1.0])$
 
 ### 2. Mamdani Rule Base (Sample)
-$$\begin{aligned}
+
+$$
+\begin{aligned}
 R_1: & \text{ IF } P_{\text{conf}} \text{ is High } \land S_{\text{stab}} \text{ is Stable } \land V_{\text{motion}} \text{ is Still } \implies D \text{ is Accept} \\
 R_2: & \text{ IF } P_{\text{conf}} \text{ is High } \land V_{\text{motion}} \text{ is Rapid } \implies D \text{ is Hold (Transition)} \\
 R_3: & \text{ IF } P_{\text{conf}} \text{ is Medium } \land S_{\text{stab}} \text{ is Stable } \land V_{\text{motion}} \text{ is Still } \implies D \text{ is Hold} \\
 R_4: & \text{ IF } P_{\text{conf}} \text{ is Low } \lor S_{\text{stab}} \text{ is Flickering } \implies D \text{ is Reject (Noise)}
-\end{aligned}$$
+\end{aligned}
+$$
 
 ### 3. Centroid Defuzzification
-$$\text{Crisp Decision Score } z^* = \frac{\int_{0}^{1} z \cdot \mu_{\text{aggregated}}(z) \, dz}{\int_{0}^{1} \mu_{\text{aggregated}}(z) \, dz}$$
+
+$$
+\text{Crisp Decision Score } z^* = \frac{\int_{0}^{1} z \cdot \mu_{\text{aggregated}}(z) \, dz}{\int_{0}^{1} \mu_{\text{aggregated}}(z) \, dz}
+$$
 
 * **Decision Boundary:**
   * If $z^* \ge 0.65 \implies$ **`COMMIT SIGN`** (Append word to sentence buffer).
@@ -166,17 +192,17 @@ $$\text{Crisp Decision Score } z^* = \frac{\int_{0}^{1} z \cdot \mu_{\text{aggre
 
 All models are benchmarked across both recognition and translation tasks:
 
-| Domain | Metric | Formulation / Significance |
-|---|---|---|
-| **SLR** | **Top-1 Accuracy** | Exact top prediction match across 262 classes |
-| **SLR** | **Top-5 Accuracy** | Top-5 categorical rank accuracy for large-scale vocabulary |
-| **SLR** | **Macro / Weighted F1** | Harmonic mean of precision and recall accounting for class balance |
-| **SLR** | **WER (Word Error Rate)** | $\frac{S + D + I}{N}$ computed via Levenshtein Dynamic Programming |
-| **SLT** | **BLEU (1 to 4)** | Modified $n$-gram precision with brevity penalty (NLTK smooth method 1) |
-| **SLT** | **ROUGE-L** | Longest Common Subsequence (LCS) F1 measure |
-| **SLT** | **METEOR** | Unigram precision/recall with harmonic weighting |
-| **SLT** | **PER** | Position-Independent Word Error Rate (bag-of-words distance) |
-| **SLT** | **TER** | Translation Edit Rate (minimum edits to match reference) |
+| Domain        | Metric                          | Formulation / Significance                                                |
+| ------------- | ------------------------------- | ------------------------------------------------------------------------- |
+| **SLR** | **Top-1 Accuracy**        | Exact top prediction match across 262 classes                             |
+| **SLR** | **Top-5 Accuracy**        | Top-5 categorical rank accuracy for large-scale vocabulary                |
+| **SLR** | **Macro / Weighted F1**   | Harmonic mean of precision and recall accounting for class balance        |
+| **SLR** | **WER (Word Error Rate)** | $\frac{S + D + I}{N}$ computed via Levenshtein Dynamic Programming      |
+| **SLT** | **BLEU (1 to 4)**         | Modified $n$-gram precision with brevity penalty (NLTK smooth method 1) |
+| **SLT** | **ROUGE-L**               | Longest Common Subsequence (LCS) F1 measure                               |
+| **SLT** | **METEOR**                | Unigram precision/recall with harmonic weighting                          |
+| **SLT** | **PER**                   | Position-Independent Word Error Rate (bag-of-words distance)              |
+| **SLT** | **TER**                   | Translation Edit Rate (minimum edits to match reference)                  |
 
 ---
 
@@ -225,7 +251,7 @@ SignBridge/
 ├── test_pipeline.py                   # 
 ├── requirements.txt                   # Dependency specifications
 ├── LICENSE
-├── .gitignore                   
+├── .gitignore                 
 └── README.md
 ```
 
@@ -260,6 +286,7 @@ python train_single.py --compare
 ```
 
 Outputs will be saved in `results/comparison/`:
+
 * `benchmark_comparison.tex` (LaTeX table for your project report)
 * `benchmark_comparison.md` & `.csv`
 * `comparison_learning_curves.png`
@@ -281,6 +308,7 @@ python webcam_live.py --model transformer --camera 1
 ```
 
 **Interface Controls:**
+
 * **Real-time Skeletal HUD:** Live 3D hand and pose landmarks overlaid with status telemetry.
 * **Fuzzy Decision Indicator:** `[COMMIT]` (Green), `[HOLD]` (Yellow), or `[REJECT]` (Gray).
 * **Keyboard Hotkeys:**
